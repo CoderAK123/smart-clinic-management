@@ -379,4 +379,12 @@
   margin-right: 0.5rem;
   accent-color: #015c5db8; 
 }
+.login-container {
+  width: 300px;
+  margin: 100px auto;
+  padding: 30px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background: #f9f9f9;
+}
 

@@ -106,4 +106,290 @@ with search, filter, and modal functionality.
     * Finish the structure by properly closing all tags.
 
  -->
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard - Smart Clinic</title>
+  <link rel="icon" type="image/png" href="logo.png" />
 
+  <style>
+    :root {
+      --primary-green: #2e7d32;
+      --light-green: #a5d6a7;
+      --bg-green: #f1f8f4;
+      --white: #fff;
+      --border-radius: 10px;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg-green);
+      color: #1b1b1b;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: var(--white);
+      border-radius: var(--border-radius);
+      box-shadow: 0 2px 10px var(--shadow);
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--primary-green);
+      margin-bottom: 30px;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: space-between;
+      margin-bottom: 25px;
+    }
+
+    .filters input,
+    .filters select,
+    .filters button {
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: var(--border-radius);
+      outline: none;
+    }
+
+    .filters button {
+      background-color: var(--primary-green);
+      color: var(--white);
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .filters button:hover {
+      background-color: #1b5e20;
+    }
+
+    .card-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .doctor-card {
+      background-color: var(--white);
+      border-left: 5px solid var(--primary-green);
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: 0 2px 5px var(--shadow);
+      transition: transform 0.2s ease;
+    }
+
+    .doctor-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .doctor-card h3 {
+      margin: 0 0 8px;
+      color: var(--primary-green);
+    }
+
+    .doctor-card p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+
+    .modal.hidden {
+      display: none;
+    }
+
+    .modal-content {
+      background-color: var(--white);
+      padding: 30px;
+      width: 90%;
+      max-width: 500px;
+      border-radius: var(--border-radius);
+      box-shadow: 0 4px 12px var(--shadow);
+      position: relative;
+    }
+
+    .modal-content h2 {
+      margin-top: 0;
+      color: var(--primary-green);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-content label {
+      display: block;
+      margin-top: 12px;
+      font-weight: bold;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 8px 12px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    .modal-content button[type="submit"] {
+      margin-top: 20px;
+      background-color: var(--primary-green);
+      color: var(--white);
+      padding: 10px 20px;
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .modal-content button[type="submit"]:hover {
+      background-color: #1b5e20;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 24px;
+      color: #666;
+      cursor: pointer;
+    }
+
+    .close-button:hover {
+      color: #000;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Admin Dashboard - Manage Doctors</h1>
+
+    <!-- Search and Filters -->
+    <div class="filters">
+      <input type="text" id="searchDoctor" placeholder="Search by name..." oninput="renderDoctors()" />
+      <select id="filterSpecialty" onchange="renderDoctors()">
+        <option value="">All Specialties</option>
+        <option value="Cardiologist">Cardiologist</option>
+        <option value="Dentist">Dentist</option>
+        <option value="Dermatologist">Dermatologist</option>
+      </select>
+      <button onclick="openModal()">+ Add Doctor</button>
+    </div>
+
+    <!-- Doctor List -->
+    <div id="doctorList" class="card-container"></div>
+  </div>
+
+  <!-- Add Doctor Modal -->
+  <div id="doctorModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeModal()">&times;</span>
+      <h2>Add New Doctor</h2>
+      <form id="doctorForm" onsubmit="addDoctor(event)">
+        <label>Name:</label>
+        <input type="text" name="name" required />
+        <label>Specialty:</label>
+        <input type="text" name="specialty" required />
+        <label>Email:</label>
+        <input type="email" name="email" required />
+        <label>Phone:</label>
+        <input type="text" name="phone" required />
+        <button type="submit">Add Doctor</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const doctorList = [
+      { name: 'Dr. Ayesha Khan', specialty: 'Cardiologist', email: 'ayesha@example.com', phone: '9876543210' },
+      { name: 'Dr. Ramesh Kumar', specialty: 'Dentist', email: 'ramesh@example.com', phone: '9123456789' },
+      { name: 'Dr. Neha Verma', specialty: 'Dermatologist', email: 'neha@example.com', phone: '9988776655' }
+    ];
+
+    function renderDoctors() {
+      const container = document.getElementById('doctorList');
+      const search = document.getElementById('searchDoctor').value.toLowerCase();
+      const filter = document.getElementById('filterSpecialty').value;
+      container.innerHTML = '';
+
+      doctorList
+        .filter(doc => {
+          return (
+            doc.name.toLowerCase().includes(search) &&
+            (filter === '' || doc.specialty === filter)
+          );
+        })
+        .forEach(doc => {
+          const card = document.createElement('div');
+          card.className = 'doctor-card';
+          card.innerHTML = `
+            <h3>${doc.name}</h3>
+            <p><strong>Specialty:</strong> ${doc.specialty}</p>
+            <p><strong>Email:</strong> ${doc.email}</p>
+            <p><strong>Phone:</strong> ${doc.phone}</p>
+          `;
+          container.appendChild(card);
+        });
+    }
+
+    function openModal() {
+      document.getElementById('doctorModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('doctorModal').classList.add('hidden');
+      document.getElementById('doctorForm').reset();
+    }
+
+    function addDoctor(event) {
+      event.preventDefault();
+      const form = event.target;
+      const newDoctor = {
+        name: form.name.value,
+        specialty: form.specialty.value,
+        email: form.email.value,
+        phone: form.phone.value
+      };
+      doctorList.push(newDoctor);
+      closeModal();
+      renderDoctors();
+    }
+
+    // Initial render
+    renderDoctors();
+
+  </script>
+<script th:src="@{/js/components/header.js}" defer></script>
+  <script th:src="@{/js/components/modals.js}" defer></script>
+  <script th:src="@{/js/components/doctorCard.js}" defer></script>
+  <script th:src="@{/js/services/doctorServices.js}" defer></script>
+  <script th:src="@{/js/adminDashboard.js}" defer></script>
+
+</body>
+</html>

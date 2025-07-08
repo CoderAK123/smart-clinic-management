@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Select Your Role</title>
+  <link rel="stylesheet" href="../assets/css/defineRole.css" />
+</head>
+<body>
+  <div class="role-wrapper">
+    <div class="role-container">
+      <h1>Welcome to Hospital CMS</h1>
+      <p>Please select your role to continue:</p>
+      <div class="role-buttons">
+        <button onclick="selectRole('admin')">Admin</button>
+        <button onclick="selectRole('doctor')">Doctor</button>
+        <button onclick="selectRole('patient')">Patient</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/util.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const role = btn.textContent.toLowerCase();
+      setRole(role);
+      window.location.href = `/login?role=${role}`;  // <-- add query param
+    });
+  });
+});
+
+  </script>
+</body>
+</html>

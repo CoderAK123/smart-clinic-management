@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="'Login - ' + ${role}">Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            background-color: #f2f2f2;
+        }
+        form {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            max-width: 400px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        label, input {
+            display: block;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        button {
+            padding: 0.5rem 1rem;
+            background: #007bff;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        p.error {
+            color: red;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <form th:action="@{/api/login}" method="post" th:object="${login}">
+        <h2 th:text="'Login as ' + ${role}">Login</h2>
+
+        <input type="hidden" name="role" th:value="${role}" />
+
+        <label for="email">Email:</label>
+        <input type="text" th:field="*{email}" id="email" required />
+
+        <label for="password">Password:</label>
+        <input type="password" th:field="*{password}" id="password" required />
+
+        <button type="submit">Login</button>
+
+        <p th:if="${error}" th:text="${error}" class="error"></p>
+    </form>
+</body>
+</html>

@@ -102,3 +102,51 @@ and triggers modal-based login functionality.
     * Properly close all opened tags to complete the document structure.
 
  -->
+    <!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Select Role | Smart Clinic</title>
+  <link rel="icon" type="image/png" href="../assets/images/logo/logo.png">
+  <link rel="stylesheet" href="../assets/css/index.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+
+  <!-- Core utility scripts -->
+  <script src="../js/util.js" defer></script>
+  <script src="../js/render.js" defer></script>
+
+  <!-- Header and Footer Components -->
+  <script src="../js/components/header.js" defer></script>
+  <script src="../js/components/footer.js" defer></script>
+</head>
+<body>
+  <div class="container">
+    <div id="header"></div>
+
+    <main>
+      <section class="role-selection">
+        <h1>Select Your Role</h1>
+        <div class="role-buttons">
+          <button class="role-btn" data-role="admin">Admin</button>
+          <button class="role-btn" data-role="patient">Patient</button>
+          <button class="role-btn" data-role="doctor">Doctor</button>
+        </div>
+      </section>
+    </main>
+
+    <div id="footer"></div>
+
+    <!-- Modal for login -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+      <div class="modal-box">
+        <button class="close-modal" id="closeModal">&times;</button>
+        <div id="modal-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load role-selection logic -->
+  <script type="module" src="../js/index.js"></script>
+</body>
+</html>

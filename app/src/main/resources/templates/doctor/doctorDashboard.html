@@ -99,3 +99,802 @@ This file defines the Doctor Dashboard interface, allowing doctors to view and m
 
     * Properly close the `<body>` and `<html>` tags to complete the document.
  -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard</title>
+    <link rel="icon" type="image/png" th:href="@{/assets/images/logo/logo.png}" />
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
+    <link rel="stylesheet" th:href="@{/assets/css/doctorDashboard.css}" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #e8f5e8 0%, #a8e6a3 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: #2d5a3d;
+            color: white;
+            padding: 1.5rem 0;
+        }
+
+        .logo {
+            text-align: center;
+            padding: 1rem;
+            border-bottom: 1px solid #4a7c59;
+            margin-bottom: 2rem;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: #81c784;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo h1 {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0 1rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: #b8d4be;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: #4a7c59;
+            color: white;
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .header {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #2d5a3d;
+            font-size: 1.8rem;
+            margin: 0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #4caf50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .user-details h3 {
+            color: #2d5a3d;
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .user-details p {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #4caf50;
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: white;
+            background: #4caf50;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2d5a3d;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Filters */
+        .filters {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filters input[type="text"], .filters input[type="date"] {
+            padding: 0.8rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filters input[type="text"]:focus, .filters input[type="date"]:focus {
+            outline: none;
+            border-color: #4caf50;
+        }
+
+        .filters label {
+            font-weight: 600;
+            color: #2d5a3d;
+            margin-right: 0.5rem;
+        }
+
+        /* Appointments Container */
+        .appointments-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .appointments-header {
+            background: #4caf50;
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .appointments-header h2 {
+            margin: 0;
+            font-size: 1.4rem;
+        }
+
+        .refresh-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        #appointmentsContainer {
+            padding: 2rem;
+            min-height: 300px;
+        }
+
+        /* Appointment Item */
+        .appointment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background: #f8f9fa;
+            border-left: 3px solid #4caf50;
+            transition: all 0.3s ease;
+        }
+
+        .appointment-item:hover {
+            background: #e8f5e8;
+            transform: translateX(5px);
+        }
+
+        .appointment-info h4 {
+            color: #2d5a3d;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .appointment-info p {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0.25rem 0;
+        }
+
+        .appointment-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+        }
+
+        .btn-secondary {
+            background: #2196f3;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #1976d2;
+        }
+
+        /* Modals */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.hidden {
+            display: none;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-button:hover {
+            color: #333;
+        }
+
+        .modal-content h2 {
+            color: #2d5a3d;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-content form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .modal-content label {
+            font-weight: 600;
+            color: #2d5a3d;
+        }
+
+        .modal-content input, .modal-content textarea {
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .modal-content input:focus, .modal-content textarea:focus {
+            outline: none;
+            border-color: #4caf50;
+        }
+
+        .modal-content button[type="submit"] {
+            background: #4caf50;
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .modal-content button[type="submit"]:hover {
+            background: #45a049;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            color: #4caf50;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .appointment-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+            
+            .appointment-actions {
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-stethoscope"></i>
+                <h1>Smart Clinic</h1>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <i class="fas fa-chart-line"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-users"></i>
+                            Patients
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-calendar-check"></i>
+                            Appointments
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-prescription-bottle"></i>
+                            Prescriptions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-file-medical"></i>
+                            Records
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h1>Doctor Dashboard</h1>
+                <div class="user-info">
+                    <div class="user-details">
+                        <h3>Dr. Rajesh Sharma</h3>
+                        <p>General Physician</p>
+                    </div>
+                    <div class="user-avatar">RS</div>
+                </div>
+            </header>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                    </div>
+                    <div class="stat-number" id="todayAppointments">0</div>
+                    <div class="stat-label">Today's Appointments</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="stat-number" id="pendingAppointments">0</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                    <div class="stat-number" id="completedAppointments">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <i class="fas fa-prescription"></i>
+                        </div>
+                    </div>
+                    <div class="stat-number" id="prescriptionsWritten">0</div>
+                    <div class="stat-label">Prescriptions</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+                <input type="text" id="searchPatient" placeholder="Search by patient name..." />
+                <input type="date" id="filterByDate" />
+                <button class="btn btn-primary" onclick="filterAppointments()">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+            </div>
+
+            <!-- Appointments Section -->
+            <div class="appointments-section">
+                <div class="appointments-header">
+                    <h2>Patient Appointments</h2>
+                    <button class="refresh-btn" onclick="refreshAppointments()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+                <div id="appointmentsContainer">
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i>
+                        <p>Loading appointments...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- View Prescriptions Modal -->
+    <div id="prescriptionModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button" id="closePrescriptionModal">&times;</span>
+            <h2>Previous Prescriptions</h2>
+            <div id="prescriptionContent">
+                <!-- Prescriptions will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Prescription Modal -->
+    <div id="addPrescriptionModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button" id="closeAddPrescriptionModal">&times;</span>
+            <h2>Prescribe Medication</h2>
+            <form id="addPrescriptionForm">
+                <input type="hidden" name="appointmentId" />
+                <label>Patient Name:</label>
+                <input type="text" name="patientName" readonly />
+                <label>Medication:</label>
+                <input type="text" name="medication" required />
+                <label>Dosage:</label>
+                <input type="text" name="dosage" required />
+                <label>Doctor Notes:</label>
+                <textarea name="doctorNotes" rows="4" placeholder="Enter your notes here..."></textarea>
+                <button type="submit">Submit Prescription</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script th:src="@{/js/components/header.js}" defer></script>
+    <script th:src="@{/js/components/modals.js}" defer></script>
+    <script th:src="@{/js/components/appointmentRow.js}" defer></script>
+    <script th:src="@{/js/services/appointmentRecordServices.js}" defer></script>
+    <script th:src="@{/js/services/prescriptionServices.js}" defer></script>
+    <script th:src="@{/js/doctorDashboard.js}" defer></script>
+
+    <script>
+        // Sample functionality for demonstration
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize dashboard
+            initializeDashboard();
+
+            // Modal functionality
+            setupModals();
+
+            // Navigation functionality
+            setupNavigation();
+        });
+
+        function initializeDashboard() {
+            // Sample data for demonstration
+            document.getElementById('todayAppointments').textContent = '12';
+            document.getElementById('pendingAppointments').textContent = '5';
+            document.getElementById('completedAppointments').textContent = '7';
+            document.getElementById('prescriptionsWritten').textContent = '15';
+
+            // Load appointments
+            loadSampleAppointments();
+        }
+
+        function loadSampleAppointments() {
+            const container = document.getElementById('appointmentsContainer');
+            container.innerHTML = `
+                <div class="appointment-item">
+                    <div class="appointment-info">
+                        <h4>Priya Patel</h4>
+                        <p><strong>Time:</strong> 10:00 AM</p>
+                        <p><strong>Issue:</strong> General Checkup</p>
+                        <p><strong>Status:</strong> Pending</p>
+                    </div>
+                    <div class="appointment-actions">
+                        <button class="btn btn-secondary" onclick="viewPrescriptions(1)">View History</button>
+                        <button class="btn btn-primary" onclick="addPrescription(1, 'Priya Patel')">Prescribe</button>
+                    </div>
+                </div>
+                <div class="appointment-item">
+                    <div class="appointment-info">
+                        <h4>Amit Kumar</h4>
+                        <p><strong>Time:</strong> 11:30 AM</p>
+                        <p><strong>Issue:</strong> Fever & Cold</p>
+                        <p><strong>Status:</strong> In Progress</p>
+                    </div>
+                    <div class="appointment-actions">
+                        <button class="btn btn-secondary" onclick="viewPrescriptions(2)">View History</button>
+                        <button class="btn btn-primary" onclick="addPrescription(2, 'Amit Kumar')">Prescribe</button>
+                    </div>
+                </div>
+                <div class="appointment-item">
+                    <div class="appointment-info">
+                        <h4>Sunita Sharma</h4>
+                        <p><strong>Time:</strong> 2:00 PM</p>
+                        <p><strong>Issue:</strong> Diabetes Checkup</p>
+                        <p><strong>Status:</strong> Completed</p>
+                    </div>
+                    <div class="appointment-actions">
+                        <button class="btn btn-secondary" onclick="viewPrescriptions(3)">View History</button>
+                        <button class="btn btn-primary" onclick="addPrescription(3, 'Sunita Sharma')">Prescribe</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setupModals() {
+            // Close modal functionality
+            document.getElementById('closePrescriptionModal').onclick = function() {
+                document.getElementById('prescriptionModal').classList.add('hidden');
+            };
+
+            document.getElementById('closeAddPrescriptionModal').onclick = function() {
+                document.getElementById('addPrescriptionModal').classList.add('hidden');
+            };
+
+            // Close modal when clicking outside
+            window.onclick = function(event) {
+                const prescriptionModal = document.getElementById('prescriptionModal');
+                const addPrescriptionModal = document.getElementById('addPrescriptionModal');
+                
+                if (event.target === prescriptionModal) {
+                    prescriptionModal.classList.add('hidden');
+                }
+                if (event.target === addPrescriptionModal) {
+                    addPrescriptionModal.classList.add('hidden');
+                }
+            };
+        }
+
+        function setupNavigation() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        }
+
+        function viewPrescriptions(appointmentId) {
+            const modal = document.getElementById('prescriptionModal');
+            const content = document.getElementById('prescriptionContent');
+            
+            // Sample prescription data
+            content.innerHTML = `
+                <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 1rem;">
+                    <h4>Previous Prescription - March 15, 2024</h4>
+                    <p><strong>Medication:</strong> Paracetamol 500mg</p>
+                    <p><strong>Dosage:</strong> 1 tablet twice daily</p>
+                    <p><strong>Notes:</strong> Take after meals</p>
+                </div>
+                <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                    <h4>Previous Prescription - March 10, 2024</h4>
+                    <p><strong>Medication:</strong> Amoxicillin 250mg</p>
+                    <p><strong>Dosage:</strong> 1 capsule three times daily</p>
+                    <p><strong>Notes:</strong> Complete full course</p>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+        }
+
+        function addPrescription(appointmentId, patientName) {
+            const modal = document.getElementById('addPrescriptionModal');
+            const form = document.getElementById('addPrescriptionForm');
+            
+            form.querySelector('input[name="appointmentId"]').value = appointmentId;
+            form.querySelector('input[name="patientName"]').value = patientName;
+            
+            modal.classList.remove('hidden');
+        }
+
+        function filterAppointments() {
+            const searchTerm = document.getElementById('searchPatient').value.toLowerCase();
+            const selectedDate = document.getElementById('filterByDate').value;
+            
+            // Your filtering logic here
+            console.log('Filtering appointments...', { searchTerm, selectedDate });
+        }
+
+        function refreshAppointments() {
+            const container = document.getElementById('appointmentsContainer');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Refreshing appointments...</p></div>';
+            
+            // Simulate API call
+            setTimeout(() => {
+                loadSampleAppointments();
+            }, 1000);
+        }
+
+        // Form submission
+        document.getElementById('addPrescriptionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const prescriptionData = {
+                appointmentId: formData.get('appointmentId'),
+                patientName: formData.get('patientName'),
+                medication: formData.get('medication'),
+                dosage: formData.get('dosage'),
+                doctorNotes: formData.get('doctorNotes')
+            };
+            
+            console.log('Prescription submitted:', prescriptionData);
+            
+            // Close modal and reset form
+            document.getElementById('addPrescriptionModal').classList.add('hidden');
+            this.reset();
+            
+            alert('Prescription added successfully!');
+        });
+    </script>
+</body>
+</html>

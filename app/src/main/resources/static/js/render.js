@@ -1,5 +1,3 @@
-// render.js
-
 function selectRole(role) {
   setRole(role);
   const token = localStorage.getItem('token');
@@ -7,22 +5,23 @@ function selectRole(role) {
     if (token) {
       window.location.href = `/adminDashboard/${token}`;
     }
-  } if (role === "patient") {
+  } else if (role === "patient") {
     window.location.href = "/pages/patientDashboard.html";
   } else if (role === "doctor") {
     if (token) {
       window.location.href = `/doctorDashboard/${token}`;
-    } else if (role === "loggedPatient") {
-      window.location.href = "loggedPatientDashboard.html";
     }
+  } else if (role === "loggedPatient") {
+    window.location.href = "loggedPatientDashboard.html";
   }
 }
-
 
 function renderContent() {
   const role = getRole();
   if (!role) {
     window.location.href = "/"; // if no role, send to role selection page
-    return;
   }
 }
+
+// ✅ Automatically run renderContent when DOM is ready
+document.addEventListener("DOMContentLoaded", renderContent);
